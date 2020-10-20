@@ -49,6 +49,7 @@
 # CHANGE LOG
 # 		2020-05-08: First Release of macOSLAPS
 #		2020-10-19: Fork. Add minimum password requirement
+#		2020-10-20: Adding LAPS datetime
 #
 #
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
@@ -59,6 +60,7 @@ jamfProUser="$5"
 LAPSaccount="$7"
 extensionAttributeID="$8"
 length="$11"
+LAPSdateEA=115
 
 ## System Variables
 mySerial=$( system_profiler SPHardwareDataType | grep Serial |  awk '{print $NF}' )
@@ -68,7 +70,7 @@ jamfProID=$( curl -sk -u "${jamfProUser}:${jamfProPass}" ${jamfProURL}/JSSResour
 
 ## Grab Current LAPS Password
 LAPScurrent=$( curl -sk -u "${jamfProUser}:${jamfProPass}" ${jamfProURL}/JSSResource/computers/id/"${jamfProID}"/subset/extension_attributes | xmllint --format - | grep -A4 "<id>${extensionAttributeID}</id>" | grep "<value>.*</value>" | awk -F "<value>|</value>" '{print $2}' )
-
+#LAPScurrentDate=$( curl -sk -u "${jamfProUser}:${jamfProPass}" ${jamfProURL}/JSSResource/computers/id/"${jamfProID}"/subset/extension_attributes | xmllint --format - | grep -A4 "<id>${LAPSdateEA}</id>" | grep "<value>.*</value>" | awk -F "<value>|</value>" '{print $2}' )
 
 ## Generate New LAPS Password of length $length and make sure it meets certain requirements (min 1 UPPER, lower, and digit)
 while [ -z $LAPSnew ]; do
@@ -97,6 +99,9 @@ curl -sk -u "${jamfProUser}:${jamfProPass}" ${jamfProURL}/JSSResource/computers/
 
 LAPSverify=$( curl -sk -u "${jamfProUser}:${jamfProPass}" ${jamfProURL}/JSSResource/computers/id/"${jamfProID}"/subset/extension_attributes | xmllint --format - | grep -A4 "<id>${extensionAttributeID}</id>" | grep "<value>.*</value>" | awk -F "<value>|</value>" '{print $2}' )
 if [[ "${LAPSnew}" == "${LAPSverify}" ]]; then
+	## Update LAPS date
+	curDate=$(date '+%Y-%m-%d %H:%M:%S')
+	curl -sk -u "${jamfProUser}:${jamfProPass}" ${jamfProURL}/JSSResource/computers/id/"${jamfProID}" -H "Content-Type: text/xml" -X PUT -d "<computer><extension_attributes><extension_attribute><id>${LAPSdateEA}</id><value>${curDate}</value></extension_attribute></extension_attributes></computer>"
 	echo "API Update Successful"
 else
 	echo "ERROR: Unable to update API...Reverting Password"
