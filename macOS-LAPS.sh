@@ -59,7 +59,7 @@ jamfProURL="$4"
 jamfProUser="$5"
 LAPSaccount="$7"
 extensionAttributeID="$8"
-length="$11"
+length=${11}
 LAPSdateEA=115
 
 ## System Variables
@@ -70,7 +70,6 @@ jamfProID=$( curl -sk -u "${jamfProUser}:${jamfProPass}" ${jamfProURL}/JSSResour
 
 ## Grab Current LAPS Password
 LAPScurrent=$( curl -sk -u "${jamfProUser}:${jamfProPass}" ${jamfProURL}/JSSResource/computers/id/"${jamfProID}"/subset/extension_attributes | xmllint --format - | grep -A4 "<id>${extensionAttributeID}</id>" | grep "<value>.*</value>" | awk -F "<value>|</value>" '{print $2}' )
-#LAPScurrentDate=$( curl -sk -u "${jamfProUser}:${jamfProPass}" ${jamfProURL}/JSSResource/computers/id/"${jamfProID}"/subset/extension_attributes | xmllint --format - | grep -A4 "<id>${LAPSdateEA}</id>" | grep "<value>.*</value>" | awk -F "<value>|</value>" '{print $2}' )
 
 ## Generate New LAPS Password of length $length and make sure it meets certain requirements (min 1 UPPER, lower, and digit)
 while [ -z $LAPSnew ]; do
