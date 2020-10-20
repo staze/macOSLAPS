@@ -48,6 +48,7 @@
 #
 # CHANGE LOG
 # 		2020-05-08: First Release of macOSLAPS
+#		2020-10-19: Fork. Add minimum password requirement
 #
 #
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
@@ -57,6 +58,7 @@ jamfProURL="$4"
 jamfProUser="$5"
 LAPSaccount="$7"
 extensionAttributeID="$8"
+length="$11"
 
 ## System Variables
 mySerial=$( system_profiler SPHardwareDataType | grep Serial |  awk '{print $NF}' )
@@ -68,8 +70,10 @@ jamfProID=$( curl -sk -u "${jamfProUser}:${jamfProPass}" ${jamfProURL}/JSSResour
 LAPScurrent=$( curl -sk -u "${jamfProUser}:${jamfProPass}" ${jamfProURL}/JSSResource/computers/id/"${jamfProID}"/subset/extension_attributes | xmllint --format - | grep -A4 "<id>${extensionAttributeID}</id>" | grep "<value>.*</value>" | awk -F "<value>|</value>" '{print $2}' )
 
 
-## Generate New LAPS Password
-LAPSnew=$( openssl rand -base64 12 | tr -dc A-Za-z0-9 )
+## Generate New LAPS Password of length $length and make sure it meets certain requirements (min 1 UPPER, lower, and digit)
+while [ -z $LAPSnew ]; do
+	LAPSnew=$(openssl rand -base64 100 | tr -dc A-Za-z0-9 | cut -c -$length | egrep "[ABCDEFGHIJKLMNOPQRSTUVWXYZ]"| egrep "[abcdefghijklmnopqrstuvwxyz"] | egrep "[0-9]")
+done
 
 ## Echo Password to Policy Logs
 echo "LAPS Current Pass: ${LAPScurrent}"
