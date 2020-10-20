@@ -43,6 +43,7 @@
 #
 # Written by: Joshua Roskos | Jamf
 # Created on: Friday, May 8th 2020
+# Forked and updated by: Ryan Stasel | University of Oregon
 #
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 #
