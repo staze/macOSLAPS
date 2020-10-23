@@ -74,7 +74,7 @@ LAPScurrent=$( curl -sk -u "${jamfProUser}:${jamfProPass}" ${jamfProURL}/JSSReso
 
 ## Generate New LAPS Password of length $length and make sure it meets certain requirements (min 1 UPPER, lower, and digit)
 while [ -z $LAPSnew ]; do
-	LAPSnew=$(openssl rand -base64 100 | tr -dc A-Za-z0-9 | cut -c -$length | egrep "[ABCDEFGHIJKLMNOPQRSTUVWXYZ]"| egrep "[abcdefghijklmnopqrstuvwxyz"] | egrep "[0-9]")
+	LAPSnew=$(openssl rand -base64 100 | tr -dc A-Za-z0-9 | tr -d 0OlI1 | cut -c -$length | egrep "[ABCDEFGHIJKLMNOPQRSTUVWXYZ]"| egrep "[abcdefghijklmnopqrstuvwxyz"] | egrep "[0-9]")
 done
 
 ## Echo Password to Policy Logs
