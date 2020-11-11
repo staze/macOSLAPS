@@ -66,7 +66,7 @@ LAPSdateEA=115
 ## System Variables
 mySerial=$( system_profiler SPHardwareDataType | grep Serial |  awk '{print $NF}' )
 jamfProPass=$( echo "${6}" | /usr/bin/openssl enc -aes256 -d -a -A -S "${9}" -k "${10}" )
-jamfProID=$( curl -sk -u "${jamfProUser}:${jamfProPass}" ${jamfProURL}/JSSResource/computers/serialnumber/"${mySerial}"/subset/general | xpath "//computer/general/id/text()" )
+jamfProID=$( curl -H "Accept: text/xml" -skfu "${jamfProUser}:${jamfProPass}" "${jamfProURL}/JSSResource/computers/serialnumber/${mySerial}/subset/general" | awk -F'<id>|</id>' '{print $2}' )
 
 
 ## Grab Current LAPS Password
